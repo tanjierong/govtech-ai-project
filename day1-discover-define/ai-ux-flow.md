@@ -39,3 +39,28 @@ f the vetter can’t confidently classify the situation, or a checklist item is 
 ## How we measure trust (Expert)
 
 fix-through rate (what share of flagged blocking issues applicants actually fix before submitting — low means the flags aren’t trusted or understood); false-flag dispute rate (applicants who submit anyway and then are not returned by an officer — each one is a flag that was wrong and erodes trust); and post-vet return rate (“Ready to submit: Yes” applications that an officer still returns — the vetter’s miss rate, the most trust-destroying failure).
+
+## AI-UX readiness
+
+**Scenario:** B · ICA passport applications
+**Moment:** the applicant clicks “Check my application” on the review page just before submitting, and gets a vet result listing exactly what would get the application returned.
+**Level reached:** 2 of 3
+**What we ship:** Stay on a validator UI until the correction rate shows the AI removes more labor than it creates.
+
+### Levels
+
+- Level 01 · Trigger Accuracy: Pass. The trigger is user-initiated (a button click), so the “does it fire at the right moment” risk is nearly zero — the applicant decides the moment. The accuracy question moves one step inside: does the vetter classify the applicant’s situation correctly before vetting?
+
+Vetter must be ≥90% confident in the situation classification (child renewal vs adult renewal vs name change, etc.) before running a checklist; below that it asks the applicant to confirm their situation first
+
+How I’d check it: run 50 synthetic draft applications with known situations through the classifier and require ≥95% correct; log every “asked to confirm” in testing to see how often the threshold triggers
+- Level 02 · System Transparency: Pass. Each issue is verifiable in under three seconds because it’s anchored to something the applicant can see: the flag names the field or document (“Parental consent — only one signature”), states the rule it comes from in plain language, and the result shows a “Rules current as of [date]” line. 
+
+How the user checks the output: they compare the flag to their form. Each flag also links to the published guidance it came from
+- Level 03 · Invisible Integration: Not yet. if applicants ignore the flags or find the vet result as skippable as the current guidance page, it adds a step without removing any labor.
+
+### Trust gaps
+
+- Black box: Vetter flags issues without specifying the rule that it violates Move: Link to the guidance pages, with each line
+- Hallucination: Rules or applicant's situation is wrongly applied Move: Below a certain threshold, flag that the model is unsure, needs human input
+- Control: If users are compelled to accept vetter's suggestions Move: Users can decide to submit or not, or continue editing
