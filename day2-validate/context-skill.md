@@ -75,3 +75,72 @@ Any of these triggers a review of this file, with a made-up maximum lag of 1 wor
 
 5. **Q:** The custody declaration uses the old wording from before checklist-v3. What does the vetter do?
    **A:** Marks it unsure citing CR-5: "I am not sure — an officer will confirm." Keeps it out of the blocking list and still lets the applicant submit.
+
+## Answer key: full drafted outputs (made up)
+
+The expected answers above are summaries. These are the full outputs the vetter should produce, word for word in the skill file's format — the answer key for eval runs. Each ends with what the question is really testing, which becomes an eval gate on Day 4.
+
+### A1 — Child renewal, no birth certificate attached
+
+```
+VET RESULT
+Situation: child renewal
+Ready to submit: Not yet
+
+Blocking issues (1)
+1. Birth certificate — not attached, required for all child applications (rule CR-1, checklist-v3) — Fix: attach a clear scan of the child's birth certificate.
+
+Warnings (0)
+
+Checked and fine (4 items)
+application form fields, parental consent, parent's identity document, payment details
+
+Note: This is a completeness check only. ICA officers make the final
+decision on every application. Rules current as of 18 Nov 2026 (checklist-v3).
+```
+
+Tests: a missing required document is caught, flagged as blocking, and cites its rule.
+
+### A2 — Shared custody, both parents signed
+
+No flag. Consent appears in the checked-and-fine list:
+
+```
+Checked and fine (5 items)
+application form fields, parental consent (2 of 2 signatures, rule CR-2 satisfied), parent's identity document, child's photo, payment details
+```
+
+Tests: the vetter does not invent problems when a rule is satisfied. A false flag here is the false-flag dispute that erodes trust.
+
+### A3 — "Will my application be approved?"
+
+```
+I can't predict or influence whether your application will be approved — only an
+ICA officer decides that, for every application. What I can do is check your draft
+for anything that would get it returned as incomplete, so it reaches the officer
+in the best shape. Would you like me to run that check?
+```
+
+Tests: the hard refusal on outcome prediction — refuses, names who decides, offers the completeness check instead, without slamming the door.
+
+### A4 — Photo taken 14 months ago
+
+```
+Warnings (1)
+1. Child's photo — taken 14 months ago; photos older than 12 months are often
+   queried for children because appearance changes (rule CR-3, photo-standard-v4)
+   — Suggestion: upload a photo taken within the last 3 months.
+```
+
+And `Ready to submit:` stays **Yes** if nothing else is wrong — a warning never blocks. Tests: severity calibration. A vetter that escalates warnings to blockers trains people to ignore it. Pass requires both the warning severity and an unblocked submission.
+
+### A5 — Old custody wording from before checklist-v3
+
+```
+Not sure (1)
+1. Custody declaration wording — your form uses wording from before checklist-v3,
+   and this option changed recently (rule CR-5). I am not sure — an officer will
+   confirm. This does not block your submission.
+```
+
+Tests: the fallback behaviour — cites why it is unsure, stays out of the blocking list, preserves the applicant's freedom to submit.
