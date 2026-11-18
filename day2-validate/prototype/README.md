@@ -9,16 +9,21 @@ passport application and clicks "Check and submit my application" instead of pla
 
 ## What is built so far
 
-**Screen 1 only — the review page** (`index.html`):
+**Screens 1 and 2 — the review page and the vet result** (`index.html`):
 
-- A pre-filled child renewal draft. This is the highest-confusion case from the
-  opportunity notes (parents applying for a child).
-- Three planted problems, matching the skill file's few-shot example:
+- Screen 1: a pre-filled child renewal draft. This is the highest-confusion case from
+  the opportunity notes (parents applying for a child). Three planted problems, matching
+  the skill file's few-shot example:
   1. Birth certificate not attached.
   2. Only 1 of 2 parental consent signatures, with shared custody declared.
   3. Child's photo taken 14 months ago.
-- A "Check and submit my application" button. Clicking it shows a placeholder note:
-  the vet result screen is the next build step.
+- Screen 2: clicking "Check and submit my application" reveals the scripted vet result
+  in the skill file's format — Situation, Ready to submit: Not yet, 2 blocking issues
+  with fixes, 1 warning, 1 "I am not sure — an officer will confirm" item (the fallback
+  behaviour), the checked-and-fine list, and the officers-decide note. The card is
+  labelled as scripted, not a live model.
+
+Not built yet: the "Fix this" and "Submit anyway" interactions (the kill-switch test).
 
 ## What this tests
 

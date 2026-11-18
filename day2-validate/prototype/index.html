@@ -129,6 +129,61 @@
     font-size: 13px;
     color: var(--muted);
   }
+
+  /* Vet result */
+  #vet-result { display: none; }
+  #vet-result.open { display: block; }
+  .vet-card {
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 24px;
+  }
+  .vet-card h2 {
+    font-size: 18px;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .vet-head {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    row-gap: 6px;
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  .vet-head .label { color: var(--muted); }
+  .ready-no { color: #a02626; font-weight: 700; }
+  .vet-section { margin-top: 16px; }
+  .vet-section h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .vet-section.blocking h3 { color: #a02626; }
+  .vet-section.warning h3 { color: #8a6a12; }
+  .vet-section.unsure h3 { color: var(--accent); }
+  .vet-section.fine h3 { color: #1e6b3a; }
+  .vet-section ol { padding-left: 22px; font-size: 15px; }
+  .vet-section ol li { margin-bottom: 10px; }
+  .vet-section .fix { display: block; margin-top: 2px; font-weight: 600; }
+  .vet-section p { font-size: 15px; }
+  .vet-note {
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .scripted-tag {
+    display: inline-block;
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    border-radius: 999px;
+    padding: 2px 10px;
+  }
   footer {
     max-width: 760px;
     margin: 0 auto 32px;
@@ -220,13 +275,67 @@
   </section>
 
   <div class="actions">
-    <button class="check-submit" type="button" onclick="alert('Prototype: the vet result screen is the next build step.')">
+    <button class="check-submit" type="button" onclick="document.getElementById('vet-result').classList.add('open'); document.getElementById('vet-result').scrollIntoView({behavior:'smooth'});">
       Check and submit my application
     </button>
     <p class="check-hint">
       We will check your application for anything that could get it returned, before it is submitted.
       An ICA officer makes the final decision on every application.
     </p>
+  </div>
+
+  <div id="vet-result">
+    <div class="vet-card">
+      <span class="scripted-tag">Prototype: this result is scripted for this made-up case, not a live model</span>
+      <h2>VET RESULT</h2>
+      <div class="vet-head">
+        <span class="label">Situation:</span><span>child renewal</span>
+        <span class="label">Ready to submit:</span><span class="ready-no">Not yet</span>
+      </div>
+
+      <div class="vet-section blocking">
+        <h3>Blocking issues (2)</h3>
+        <ol>
+          <li>
+            Birth certificate — not attached, required for all child applications
+            <span class="fix">Fix: attach a clear scan of the child's birth certificate.</span>
+          </li>
+          <li>
+            Parental consent — only one signature, but the form indicates shared custody
+            <span class="fix">Fix: the second parent signs the consent section, or attach the court order granting sole custody.</span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="vet-section warning">
+        <h3>Warnings (1)</h3>
+        <ol>
+          <li>
+            Child's photo — taken 14 months ago; photos older than 12 months are often queried for children because appearance changes
+            <span class="fix">Suggestion: upload a photo taken within the last 3 months.</span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="vet-section unsure">
+        <h3>Not sure (1)</h3>
+        <ol>
+          <li>
+            Custody declaration wording — the shared custody option on this form changed recently. I am not sure — an officer will confirm. This does not block your submission.
+          </li>
+        </ol>
+      </div>
+
+      <div class="vet-section fine">
+        <h3>Checked and fine (3 items)</h3>
+        <p>application form fields, parent's identity document, payment details</p>
+      </div>
+
+      <p class="vet-note">
+        Note: This is a completeness check only. ICA officers make the final
+        decision on every application. Rules current as of 18 Nov 2026 (made-up date for this prototype).
+      </p>
+    </div>
   </div>
 </main>
 
