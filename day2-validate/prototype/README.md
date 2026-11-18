@@ -13,7 +13,10 @@ passport application and clicks "Check and submit my application" instead of pla
 
 - Step 1 — simulated Singpass login (prompt chain stage 1, Expand): a pretend login
   button (no real authentication, nothing retrieved) that "pulls" made-up records.
-  After login, a child picker lists the children linked in the records — two made-up
+  The service starts generic — "Renew a passport" — and after login (or continuing
+  as a guest) the applicant picks what they are renewing: their own passport (not
+  built; the prototype says so) or a child's passport, the test case. On the child
+  path, a child picker lists the children linked in the records — two made-up
   children with names one letter apart, to test wrong-child selection — plus
   "My child is not in this list" (typed child = a warning asking for proof of
   relationship, never a block). "Continue without Singpass" starts a guest run:
