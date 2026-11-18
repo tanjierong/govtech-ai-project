@@ -269,10 +269,11 @@
     100% { background: transparent; }
   }
 
-  /* Simulated Singpass login */
+  /* Simulated Singpass login + child picker */
   #screen-app { display: none; }
   #screen-app.open { display: block; }
-  #screen-login { max-width: 420px; margin: 40px auto; }
+  #screen-login, #screen-picker { max-width: 460px; margin: 40px auto; }
+  .hidden { display: none !important; }
   .login-card {
     background: var(--card);
     border: 1px solid var(--line);
@@ -294,6 +295,18 @@
     cursor: pointer;
   }
   button.singpass-btn:hover { background: #a30d26; }
+  button.guest-btn {
+    width: 100%;
+    margin-top: 10px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 11px 16px;
+    cursor: pointer;
+  }
+  button.guest-btn:hover { border-color: var(--muted); }
   .login-note {
     margin-top: 14px;
     font-size: 12px;
@@ -306,6 +319,32 @@
     color: var(--accent);
     font-weight: 600;
   }
+  .picker-card { text-align: left; }
+  button.picker-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  button.picker-option:hover { border-color: var(--accent); background: #e9f1f8; }
+  .picker-warn { font-size: 12px; color: #8a6a12; margin: 2px 0 14px; }
+  button.picker-other {
+    background: none;
+    border: none;
+    color: var(--accent);
+    text-decoration: underline;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  /* Prefill badges, lock-to-edit fields */
   .prefill-badge {
     display: inline-block;
     margin-left: 8px;
@@ -317,6 +356,37 @@
     padding: 1px 8px;
     white-space: nowrap;
   }
+  .manual-badge {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #444c5c;
+    background: #e7eaf0;
+    border-radius: 999px;
+    padding: 1px 8px;
+    white-space: nowrap;
+  }
+  button.edit-field {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 6px;
+    padding: 0;
+  }
+  .field-edit input[type="text"] {
+    width: 100%;
+    max-width: 300px;
+    padding: 6px 9px;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 6px;
+  }
+  .edit-hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .prefill-note {
     font-size: 13px;
     color: var(--muted);
@@ -325,6 +395,8 @@
     background: #e9f1f8;
     border-radius: 8px;
   }
+  .logout-row { text-align: right; margin-bottom: 6px; }
+
   .ready-yes { color: #1e6b3a; font-weight: 700; }
   .vet-actions {
     display: flex;
@@ -418,28 +490,51 @@
       <h1>Renew a child's passport</h1>
       <p class="login-sub">Log in and we will fill in what the government already knows, so you only check and add what's missing.</p>
       <button class="singpass-btn" type="button" onclick="singpassLogin()">Log in with Singpass (simulated)</button>
+      <button class="guest-btn" type="button" onclick="guestStart()">Continue without Singpass — fill everything in yourself</button>
       <div id="login-progress">Retrieving your records… (simulated — no real login, no real data)</div>
       <p class="login-note">
         PROTOTYPE: this is a pretend Singpass button for a course project. It performs no
         real authentication and retrieves nothing. Everything it "prefills" is made-up
-        sample data.
+        sample data. Skipping Singpass costs convenience only — you can still apply.
       </p>
     </div>
   </div>
 
+  <div id="screen-picker" class="hidden">
+    <div class="login-card picker-card">
+      <h1>Which child is this renewal for?</h1>
+      <p class="login-sub">These are the children linked to you in your records (made-up sample people).</p>
+      <button class="picker-option" type="button" onclick="pickChild(0)">
+        <strong>Tan Mei Ling</strong> (fictional) · born 4 March 2018
+      </button>
+      <button class="picker-option" type="button" onclick="pickChild(1)">
+        <strong>Tan Mei Lin</strong> (fictional) · born 9 January 2021
+      </button>
+      <p class="picker-warn">Take a second look — these two names are one letter apart. Check the date of birth before you pick.</p>
+      <button class="picker-other" type="button" onclick="toggleOtherChild()">My child is not in this list</button>
+      <div class="fix-ui" id="other-child">
+        <label>Child's full name (made-up name only). Typing a child not in your records adds a warning and asks for proof — it does not block you.</label>
+        <input type="text" id="other-child-name" placeholder="e.g. Chen Xiao Hua (made-up)">
+        <div class="file-row">
+          <button class="fix-confirm" type="button" onclick="pickOtherChild()">Continue with this child</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="screen-app">
+  <div class="logout-row">
+    <button class="fix-cancel" type="button" id="logout-btn" onclick="logoutReset()">Log out (simulated) — clears everything that was prefilled</button>
+  </div>
   <nav class="steps" aria-label="Application steps">
-    <span>1 · Log in — done</span>
+    <span id="step1-label">1 · Log in — done</span>
     <span class="current">2 · Verify details and documents</span>
     <span>3 · Check and submit</span>
   </nav>
 
   <h1>Verify your application</h1>
-  <p class="lede">We filled in what your records already show (made-up sample data). Check each item, then add the documents we could not pull.</p>
-  <p class="prefill-note">
-    Fields marked <span class="prefill-badge">Prefilled from myInfo (simulated)</span> were
-    filled for you from made-up records. You did not have to type them.
-  </p>
+  <p class="lede" id="lede-text"></p>
+  <p class="prefill-note" id="prefill-note"></p>
 
   <section class="card">
     <h2>Application type</h2>
@@ -451,39 +546,27 @@
 
   <section class="card">
     <h2>Child's details (made up)</h2>
-    <dl class="fields">
-      <dt>Full name</dt><dd>Tan Mei Ling (fictional) <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
-      <dt>Date of birth</dt><dd>4 March 2018 <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
-      <dt>Identity number</dt><dd>X0000000A (fake number) <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
-      <dt>Current passport number</dt><dd>K0000000 (fake number) <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
-      <dt>Passport expiry</dt><dd>2 February 2027 <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
-    </dl>
+    <dl class="fields" id="child-fields"></dl>
   </section>
 
   <section class="card">
     <h2>Parent / guardian details (made up)</h2>
-    <dl class="fields">
-      <dt>Full name</dt><dd>Tan Wei Ming (fictional) <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
-      <dt>Identity number</dt><dd>X1111111B (fake number) <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
-      <dt>Relationship</dt><dd>Father <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
-      <dt>Custody declaration</dt><dd>Shared custody <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
-      <dt>Consent signatures provided</dt><dd id="form-signatures">1 of 2 parents — second signature cannot be pulled; sign at the check step</dd>
-    </dl>
+    <dl class="fields" id="parent-fields"></dl>
   </section>
 
   <section class="card">
     <h2>Documents — add what we could not pull</h2>
     <ul class="docs">
       <li>
-        <span>Parent's identity document<br><span class="doc-meta">parent-id.pdf · pulled from records <span class="prefill-badge">Prefilled from myInfo (simulated)</span></span></span>
+        <span>Parent's identity document<br><span class="doc-meta">parent-id.pdf · <span id="parent-id-src">pulled from records</span> <span class="prefill-badge" id="parent-id-badge">From Singpass (simulated)</span></span></span>
         <span class="pill attached">Attached</span>
       </li>
       <li>
-        <span>Child's photo — a recent photo cannot be pulled; upload one<br>
-          <span class="doc-meta" id="form-photo-meta">photo.jpg from your last application · taken September 2025 (14 months ago)</span>
-          <button class="fix-btn" type="button" onclick="uploadDoc('photo')">Upload a recent photo (simulated)</button>
+        <span>Child's photo — your photo on file is over 12 months old; please upload a new one<br>
+          <span class="doc-meta" id="form-photo-meta">photo.jpg · taken September 2025 (14 months ago)</span>
+          <button class="fix-btn" type="button" onclick="uploadDoc('photo')">Upload new photo (simulated)</button>
         </span>
-        <span class="pill attached" id="form-photo-pill">Old photo</span>
+        <span class="pill missing" id="form-photo-pill">New photo needed</span>
       </li>
       <li>
         <span>Child's birth certificate — not in pulled records; upload it<br>
@@ -498,9 +581,9 @@
   <section class="card">
     <h2>Payment</h2>
     <dl class="fields">
-      <dt>Fee</dt><dd>$70.00 (made-up amount) <span class="prefill-badge">From the published fee table (simulated)</span></dd>
-      <dt>Method</dt><dd>Credit card ending 0000 (fake)</dd>
+      <dt>Fee</dt><dd>$70.00 (made-up amount)</dd>
     </dl>
+    <p class="doc-meta">You choose how to pay at the payment step, after this check.</p>
   </section>
 
   <div class="actions">
@@ -562,6 +645,12 @@
       <div class="vet-section warning">
         <h3 id="warning-head">Warnings (1)</h3>
         <ol>
+          <li id="issue-childlink" class="hidden">
+            <span id="childlink-text">Child not found in your linked records — you typed this child's name yourself.</span>
+            <span class="fix">Fix: attach proof of your relationship, for example the child's birth certificate or an adoption order. This does not block your submission.</span>
+            <button class="fix-btn" type="button" onclick="attachProof()">Attach proof (simulated)</button>
+            <span class="fixed-tag" id="childlink-fixed-tag"></span>
+          </li>
           <li id="issue-photo">
             Child's photo — taken 14 months ago; photos older than 12 months are often queried for children because appearance changes
             <span class="fix">Suggestion: upload a photo taken within the last 3 months.</span>
@@ -592,8 +681,10 @@
       </div>
 
       <div class="vet-section fine">
-        <h3>Checked and fine (3 items)</h3>
-        <p>application form fields, parent's identity document, payment details</p>
+        <h3 id="fine-head">Checked and fine</h3>
+        <p id="fine-verified"></p>
+        <p id="fine-hand"></p>
+        <p class="doc-meta" id="fine-rule-note"></p>
       </div>
 
       <p class="vet-note">
@@ -619,6 +710,8 @@
     <div id="facilitator-panel">
       <h3>FACILITATOR PANEL — this run's numbers (made-up test data; nothing is stored or sent)</h3>
       <table>
+        <tr><td>Flow used</td><td id="fp-mode">–</td></tr>
+        <tr><td>Prefilled fields edited</td><td id="fp-edited">–</td></tr>
         <tr><td>Fixed at step 2 (before the check)</td><td id="fp-prefix">–</td></tr>
         <tr><td>Blocking issues fixed</td><td id="fp-blocking">–</td></tr>
         <tr><td>Fix-through rate (blocking)</td><td id="fp-rate">–</td></tr>
@@ -636,17 +729,205 @@
 </main>
 
 <script>
-  // Simulated Singpass login: no real authentication, no real data.
+  // ---------- Made-up people. No real Singpass, MyInfo or NRIC data, ever. ----------
+  var PERSONAS = [
+    { cname: 'Tan Mei Ling (fictional)', cdob: '4 March 2018', cid: 'X0000000A (fake number)',
+      cpass: 'K0000000 (fake number)', cexp: '2 February 2027' },
+    { cname: 'Tan Mei Lin (fictional)', cdob: '9 January 2021', cid: 'X2222222C (fake number)',
+      cpass: 'K1111111 (fake number)', cexp: '15 June 2026' }
+  ];
+  var PARENT = {
+    pname: 'Tan Wei Ming (fictional)', pid: 'X1111111B (fake number)',
+    paddr: 'Blk 123 Example Street 45, #06-789 (made-up address)',
+    prel: 'Father', pcust: 'Shared custody'
+  };
+  var SAMPLE_CHILD = {
+    cdob: '12 May 2019 (made up)', cid: 'X3333333D (fake number)',
+    cpass: 'K2222222 (fake number)', cexp: '30 September 2026'
+  };
+  var FIELDS = {
+    child: [
+      { key: 'cname', label: "Full name" },
+      { key: 'cdob',  label: "Date of birth" },
+      { key: 'cid',   label: "Identity number" },
+      { key: 'cpass', label: "Current passport number" },
+      { key: 'cexp',  label: "Passport expiry" }
+    ],
+    parent: [
+      { key: 'pname', label: "Full name" },
+      { key: 'pid',   label: "Identity number" },
+      { key: 'paddr', label: "Residential address" },
+      { key: 'prel',  label: "Relationship" },
+      { key: 'pcust', label: "Custody declaration" }
+    ]
+  };
+
+  // ---------- State for this run. Nothing is stored or sent anywhere. ----------
+  var state = {
+    mode: null,          // 'singpass' or 'guest'
+    childLinked: false,  // true when the child was picked from the linked list
+    values: {},
+    edited: {}           // fields the applicant unlocked and changed
+  };
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // ---------- Login, child picker, guest path ----------
   function singpassLogin() {
     document.getElementById('login-progress').style.display = 'block';
     setTimeout(function () {
-      document.getElementById('screen-login').style.display = 'none';
-      document.getElementById('screen-app').classList.add('open');
+      document.getElementById('screen-login').classList.add('hidden');
+      document.getElementById('screen-picker').classList.remove('hidden');
       window.scrollTo(0, 0);
     }, 900);
   }
+  function pickChild(i) {
+    state.mode = 'singpass';
+    state.childLinked = true;
+    setValues(PERSONAS[i]);
+    enterApp();
+  }
+  function toggleOtherChild() {
+    document.getElementById('other-child').classList.toggle('open');
+  }
+  function pickOtherChild() {
+    var name = document.getElementById('other-child-name').value.trim();
+    if (!name) { alert('Type the child\'s made-up name first.'); return; }
+    state.mode = 'singpass';
+    state.childLinked = false;
+    var vals = { cname: esc(name) + ' (typed by you — made up)' };
+    for (var k in SAMPLE_CHILD) vals[k] = SAMPLE_CHILD[k];
+    setValues(vals);
+    // Not blocking: an unlisted child adds a warning and asks for proof.
+    var w = document.getElementById('issue-childlink');
+    w.classList.remove('hidden');
+    document.getElementById('childlink-text').textContent =
+      'Child not found in your linked records — you typed "' + name + '" yourself.';
+    enterApp();
+  }
+  function guestStart() {
+    state.mode = 'guest';
+    state.childLinked = false;
+    setValues(PERSONAS[0]);
+    enterApp();
+  }
+  function setValues(childVals) {
+    for (var k in PARENT) state.values[k] = PARENT[k];
+    for (var c in childVals) state.values[c] = childVals[c];
+  }
+  function logoutReset() {
+    // Logging out clears all prefilled data from the draft (the whole run restarts).
+    location.reload();
+  }
 
-  // Step 2 uploads: fixing a gap BEFORE the check. The vet result reflects them.
+  // ---------- Render the form fields: locked prefill, unlock to edit ----------
+  function isPrefilled(group) {
+    if (state.mode !== 'singpass') return false;
+    if (group === 'child') return state.childLinked;
+    return true;
+  }
+  function enterApp() {
+    document.getElementById('screen-login').classList.add('hidden');
+    document.getElementById('screen-picker').classList.add('hidden');
+    document.getElementById('screen-app').classList.add('open');
+    buildFields();
+    setModeTexts();
+    window.scrollTo(0, 0);
+  }
+  function buildFields() {
+    ['child', 'parent'].forEach(function (group) {
+      var dl = document.getElementById(group + '-fields');
+      var html = '';
+      FIELDS[group].forEach(function (f) {
+        html += '<dt>' + f.label + '</dt><dd id="fd-' + f.key + '"></dd>';
+      });
+      if (group === 'parent') {
+        html += '<dt>Consent signatures provided</dt><dd id="form-signatures">1 of 2 parents — second signature cannot be pulled; sign at the check step</dd>';
+      }
+      dl.innerHTML = html;
+      FIELDS[group].forEach(function (f) { renderField(group, f.key); });
+    });
+    // The parent's identity document was only "pulled" if Singpass was used.
+    if (state.mode === 'guest') {
+      document.getElementById('parent-id-src').textContent = 'uploaded by you (simulated)';
+      var b = document.getElementById('parent-id-badge');
+      b.className = 'manual-badge';
+      b.textContent = 'Entered by you (made up)';
+    }
+  }
+  function findField(key) {
+    var all = FIELDS.child.concat(FIELDS.parent);
+    for (var i = 0; i < all.length; i++) if (all[i].key === key) return all[i];
+  }
+  function fieldGroup(key) { return key.charAt(0) === 'c' ? 'child' : 'parent'; }
+  function renderField(group, key) {
+    var dd = document.getElementById('fd-' + key);
+    var v = esc(state.values[key]);
+    var locked = isPrefilled(group) && !state.edited[key];
+    var html = '<span>' + v + '</span>';
+    if (locked) {
+      html += ' <span class="prefill-badge">🔒 From Singpass (simulated)</span>';
+      html += ' <button class="edit-field" type="button" onclick="editField(\'' + key + '\')">Unlock to edit</button>';
+    } else {
+      html += ' <span class="manual-badge">Entered by you (made up) — will be fully checked</span>';
+      html += ' <button class="edit-field" type="button" onclick="editField(\'' + key + '\')">Edit</button>';
+    }
+    dd.innerHTML = html;
+  }
+  function editField(key) {
+    var group = fieldGroup(key);
+    var dd = document.getElementById('fd-' + key);
+    var locked = isPrefilled(group) && !state.edited[key];
+    var hint = locked
+      ? 'Editing removes the From Singpass badge. The check will then cover this field in full.'
+      : 'This field is yours to change. The check covers it in full.';
+    dd.innerHTML =
+      '<div class="field-edit">' +
+      '<input type="text" id="fin-' + key + '" value="' + esc(state.values[key]) + '">' +
+      '<div><button class="fix-confirm" type="button" onclick="saveField(\'' + key + '\')">Save</button> ' +
+      '<button class="fix-cancel" type="button" onclick="renderField(\'' + fieldGroup(key) + '\',\'' + key + '\')">Cancel</button></div>' +
+      '<p class="edit-hint">' + hint + '</p>' +
+      '</div>';
+    document.getElementById('fin-' + key).focus();
+  }
+  function saveField(key) {
+    var group = fieldGroup(key);
+    var input = document.getElementById('fin-' + key);
+    var newVal = input.value.trim();
+    if (!newVal) { alert('The field cannot be empty. Cancel to keep the pulled value.'); return; }
+    var wasLocked = isPrefilled(group) && !state.edited[key];
+    if (newVal !== state.values[key]) {
+      state.values[key] = newVal;
+      if (wasLocked) state.edited[key] = true; // the edited field loses its badge for good
+    }
+    renderField(group, key);
+    flash(document.getElementById('fd-' + key));
+  }
+  function setModeTexts() {
+    var lede = document.getElementById('lede-text');
+    var note = document.getElementById('prefill-note');
+    var step1 = document.getElementById('step1-label');
+    var logout = document.getElementById('logout-btn');
+    if (state.mode === 'singpass') {
+      step1.textContent = '1 · Log in — done';
+      lede.textContent = 'We filled in what your records already show (made-up sample data). Check each item, then add the documents we could not pull.';
+      note.innerHTML = 'Fields marked <span class="prefill-badge">🔒 From Singpass (simulated)</span> were pulled for you and are locked — the check treats them as verified and never flags them. ' +
+        'If one is out of date (for example your address), use <strong>Unlock to edit</strong>: an edited field loses its badge and gets fully checked instead.';
+      if (!state.childLinked) {
+        note.innerHTML += '<br><br>You typed your child\'s name yourself, so the child\'s details are not from Singpass — the check covers all of them, and it will ask for proof of relationship (a warning, not a block).';
+      }
+    } else {
+      step1.textContent = '1 · Log in — skipped (guest)';
+      lede.textContent = 'You skipped Singpass, so nothing was prefilled — the check will cover every field in full. (In this prototype the fields come pre-typed with made-up sample data so you can keep clicking; in the real service you would type them.)';
+      note.innerHTML = 'No field carries a <span class="prefill-badge">🔒 From Singpass (simulated)</span> badge, because nothing was pulled. Every field shows <span class="manual-badge">Entered by you (made up)</span> and gets fully checked. Skipping Singpass costs convenience, not the ability to apply.';
+      logout.textContent = 'Start over (simulated)';
+    }
+  }
+
+  // ---------- Step 2 uploads: fixing a gap BEFORE the check ----------
   var step2Done = { cert: false, photo: false };
   function uploadDoc(kind) {
     step2Done[kind] = true;
@@ -668,16 +949,57 @@
       flash(pmeta.closest('li'));
       document.getElementById('issue-photo').classList.add('fixed');
       document.getElementById('photo-fixed-tag').textContent = '✓ Resolved at step 2: photo-nov-2026.jpg uploaded (simulated)';
-      document.getElementById('warning-head').textContent = 'Warnings (0)';
     }
     refreshVetCounts();
   }
+
+  // ---------- Vet result ----------
+  function remainingBlockers() {
+    return ['issue-cert', 'issue-consent']
+      .filter(function (id) { return !document.getElementById(id).classList.contains('fixed'); }).length;
+  }
+  function remainingWarnings() {
+    return ['issue-photo', 'issue-childlink'].filter(function (id) {
+      var el = document.getElementById(id);
+      return !el.classList.contains('hidden') && !el.classList.contains('fixed');
+    }).length;
+  }
   function refreshVetCounts() {
     document.getElementById('blocking-head').textContent = 'Blocking issues (' + remainingBlockers() + ')';
+    document.getElementById('warning-head').textContent = 'Warnings (' + remainingWarnings() + ')';
+  }
+  function buildFineSection() {
+    var verified = [], hand = [];
+    ['child', 'parent'].forEach(function (group) {
+      FIELDS[group].forEach(function (f) {
+        var name = (group === 'child' ? "child's " : "parent's ") + f.label.toLowerCase();
+        if (isPrefilled(group) && !state.edited[f.key]) verified.push(name);
+        else hand.push(name + (state.edited[f.key] ? ' (edited by you)' : ''));
+      });
+    });
+    if (state.mode === 'singpass') verified.push("parent's identity document");
+    else hand.push("parent's identity document");
+    hand.push('fee');
+
+    var vEl = document.getElementById('fine-verified');
+    var hEl = document.getElementById('fine-hand');
+    if (verified.length > 0) {
+      vEl.style.display = '';
+      vEl.innerHTML = '<strong>Verified from Singpass, not re-checked (' + verified.length + '):</strong> ' + verified.join(', ') + '.';
+      document.getElementById('fine-rule-note').textContent =
+        'Unedited Singpass fields are treated as verified and are never flagged. The check focuses on what you added or changed by hand.';
+    } else {
+      vEl.style.display = 'none';
+      document.getElementById('fine-rule-note').textContent =
+        'Nothing came from Singpass, so every field above was checked by hand.';
+    }
+    hEl.innerHTML = '<strong>Checked by hand (' + hand.length + '):</strong> ' + hand.join(', ') + '.';
+    document.getElementById('fine-head').textContent = 'Checked and fine (' + (verified.length + hand.length) + ' items)';
   }
   function openVetResult() {
     refreshVetCounts();
-    const ready = document.getElementById('ready-flag');
+    buildFineSection();
+    var ready = document.getElementById('ready-flag');
     if (remainingBlockers() === 0) {
       ready.textContent = 'Yes';
       ready.className = 'ready-yes';
@@ -712,13 +1034,13 @@
     if (!chosen['cert']) { alert('Choose a file first (simulated).'); return; }
     document.getElementById('cert-fixed-tag').textContent = '✓ Fixed: ' + chosen['cert'] + ' attached (simulated)';
     document.getElementById('issue-cert').classList.add('fixed');
-    // Update the draft application above
     var pill = document.getElementById('form-cert-pill');
     pill.textContent = 'Attached';
     pill.className = 'pill attached';
     var meta = document.getElementById('form-cert-meta');
     meta.textContent = chosen['cert'] + ' · uploaded just now (simulated)';
     flash(meta.closest('li'));
+    refreshVetCounts();
   }
   function confirmConsent() {
     var name = document.getElementById('consent-name').value.trim();
@@ -728,25 +1050,27 @@
     var sig = document.getElementById('form-signatures');
     sig.textContent = '2 of 2 parents';
     flash(sig);
+    refreshVetCounts();
   }
   function confirmPhoto() {
     if (!chosen['photo']) { alert('Choose a file first (simulated).'); return; }
     document.getElementById('photo-fixed-tag').textContent = '✓ Updated: ' + chosen['photo'] + ' uploaded (simulated)';
     document.getElementById('issue-photo').classList.add('fixed');
-    document.getElementById('warning-head').textContent = 'Warnings (0)';
     var meta = document.getElementById('form-photo-meta');
     meta.textContent = chosen['photo'] + ' · uploaded just now — photo taken this month (simulated)';
     flash(meta.closest('li'));
+    refreshVetCounts();
   }
-  function remainingBlockers() {
-    return ['issue-cert', 'issue-consent']
-      .filter(id => !document.getElementById(id).classList.contains('fixed')).length;
+  function attachProof() {
+    document.getElementById('childlink-fixed-tag').textContent = '✓ Fixed: proof-of-relationship.pdf attached (simulated)';
+    document.getElementById('issue-childlink').classList.add('fixed');
+    refreshVetCounts();
   }
   function recheck() {
-    const n = remainingBlockers();
-    const head = document.getElementById('blocking-head');
-    head.textContent = 'Blocking issues (' + n + ')';
-    const ready = document.getElementById('ready-flag');
+    refreshVetCounts();
+    buildFineSection();
+    var n = remainingBlockers();
+    var ready = document.getElementById('ready-flag');
     if (n === 0) {
       ready.textContent = 'Yes';
       ready.className = 'ready-yes';
@@ -758,7 +1082,7 @@
     }
   }
   function submitApp(afterFixes) {
-    const banner = document.getElementById('submitted-banner');
+    var banner = document.getElementById('submitted-banner');
     document.getElementById('submitted-detail').textContent = afterFixes
       ? ' All blocking issues were fixed before submission. '
       : ' Submitted with ' + remainingBlockers() + ' blocking issue(s) unfixed — your choice, and allowed. ';
@@ -767,10 +1091,16 @@
     banner.scrollIntoView({ behavior: 'smooth' });
   }
   function showFacilitatorPanel(afterFixes) {
-    const totalBlocking = 2;
-    const fixed = totalBlocking - remainingBlockers();
-    const photoFixed = document.getElementById('issue-photo').classList.contains('fixed');
-    const preFixed = (step2Done.cert ? 1 : 0) + (step2Done.photo ? 1 : 0);
+    var totalBlocking = 2;
+    var fixed = totalBlocking - remainingBlockers();
+    var photoFixed = document.getElementById('issue-photo').classList.contains('fixed');
+    var preFixed = (step2Done.cert ? 1 : 0) + (step2Done.photo ? 1 : 0);
+    var editedCount = Object.keys(state.edited).length;
+    var modeLabel = state.mode === 'guest' ? 'Guest — manual entry, full check'
+      : (state.childLinked ? 'Singpass prefill — child from linked list'
+        : 'Singpass prefill — child typed in (not linked)');
+    document.getElementById('fp-mode').textContent = modeLabel;
+    document.getElementById('fp-edited').textContent = editedCount + ' field(s)';
     document.getElementById('fp-prefix').textContent = preFixed + ' item(s)' + (step2Done.cert ? ' incl. birth certificate' : '');
     document.getElementById('fp-blocking').textContent = fixed + ' of ' + totalBlocking;
     document.getElementById('fp-rate').textContent = Math.round(100 * fixed / totalBlocking) + '%';
