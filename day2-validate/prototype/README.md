@@ -11,15 +11,24 @@ passport application and clicks "Check and submit my application" instead of pla
 
 **The full three-step flow** (`index.html`):
 
-- Step 1 — simulated Singpass login: a pretend login button (no real authentication,
-  nothing retrieved) that "pulls" made-up records and prefills the application. This
-  demos the strategy kernel's data-pulling action: the applicant types nothing that
-  the government already knows. Every prefilled field carries a "Prefilled from myInfo
-  (simulated)" badge.
-- Step 2 — verify and add documents: the applicant checks the prefilled details and
-  uploads what cannot be pulled (birth certificate, a recent photo — simulated pickers).
+- Step 1 — simulated Singpass login (prompt chain stage 1, Expand): a pretend login
+  button (no real authentication, nothing retrieved) that "pulls" made-up records.
+  After login, a child picker lists the children linked in the records — two made-up
+  children with names one letter apart, to test wrong-child selection — plus
+  "My child is not in this list" (typed child = a warning asking for proof of
+  relationship, never a block). "Continue without Singpass" starts a guest run:
+  nothing is prefilled and the vetter checks every field in full. Logging out
+  clears everything that was prefilled.
+- Prefilled fields are locked with a "🔒 From Singpass (simulated)" badge and an
+  "Unlock to edit" link. An edited field permanently loses its badge, is marked
+  "Entered by you", and goes back into the vetter's full-check list. The vetter
+  never flags an unedited prefilled field; its result splits "Checked and fine"
+  into verified-from-Singpass and checked-by-hand.
+- Step 2 — verify and add documents: the applicant checks the details and
+  uploads what cannot be pulled (birth certificate, a new photo — simulated pickers).
   Items resolved here disappear from the vet result before it ever shows, and the
-  facilitator panel counts them separately.
+  facilitator panel counts them separately. Payment shows the fee only; the payment
+  method is chosen at a later payment step, outside this prototype.
 - Step 3 — check and submit: the vetting flow below, unchanged in behaviour.
 
 The planted case is still a child renewal — the highest-confusion case from the
@@ -27,7 +36,8 @@ opportunity notes — with three problems, matching the skill file's few-shot ex
   1. Birth certificate not attached (fixable at step 2 or step 3).
   2. Only 1 of 2 parental consent signatures, with shared custody declared — a signature
      cannot be pulled, so it is always fixed at step 3 (or skipped).
-  3. Child's photo taken 14 months ago (fixable at step 2 or step 3).
+  3. Child's photo on file is over 12 months old, so a new one is asked for
+     (fixable at step 2 or step 3).
 - Screen 2: clicking "Check and submit my application" reveals the scripted vet result
   in the skill file's format — Situation, Ready to submit: Not yet, 2 blocking issues
   with fixes, 1 warning, 1 "I am not sure — an officer will confirm" item (the fallback
