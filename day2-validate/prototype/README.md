@@ -22,8 +22,12 @@ passport application and clicks "Check and submit my application" instead of pla
   with fixes, 1 warning, 1 "I am not sure — an officer will confirm" item (the fallback
   behaviour), the checked-and-fine list, and the officers-decide note. The card is
   labelled as scripted, not a live model.
-
-Not built yet: the "Fix this" and "Submit anyway" interactions (the kill-switch test).
+- Interactions (the kill-switch test): each blocking issue has a "Fix this" button that
+  simulates the fix. "Check again and submit" re-counts the blockers — if all are fixed,
+  Ready to submit flips to Yes and the application submits (simulated). "Submit anyway,
+  without fixing" always works: the check can never block submission, which is the
+  Control trust gap from the AI UX flow. The submitted banner records whether the
+  applicant fixed the issues or skipped them — the behaviour the kill switch watches.
 
 ## What this tests
 
