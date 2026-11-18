@@ -314,6 +314,24 @@
   }
   #submitted-banner.open { display: block; }
   #submitted-banner strong { color: #1e6b3a; }
+  #facilitator-panel {
+    display: none;
+    background: #f4efff;
+    border: 2px dashed #6b4bb8;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-top: 14px;
+    font-size: 14px;
+  }
+  #facilitator-panel.open { display: block; }
+  #facilitator-panel h3 { color: #6b4bb8; font-size: 14px; margin-bottom: 8px; }
+  #facilitator-panel table { border-collapse: collapse; width: 100%; max-width: 420px; }
+  #facilitator-panel td {
+    padding: 5px 10px 5px 0;
+    border-bottom: 1px solid #ddd3f2;
+  }
+  #facilitator-panel td:last-child { font-weight: 700; }
+  #facilitator-panel .fp-note { margin-top: 8px; color: var(--muted); font-size: 12px; }
   footer {
     max-width: 760px;
     margin: 0 auto 32px;
@@ -516,6 +534,21 @@
       <span id="submitted-detail"></span>
       An ICA officer makes the final decision. Nothing was actually sent — this is a prototype with made-up data.
     </div>
+
+    <div id="facilitator-panel">
+      <h3>FACILITATOR PANEL — this run's numbers (made-up test data; nothing is stored or sent)</h3>
+      <table>
+        <tr><td>Blocking issues fixed</td><td id="fp-blocking">–</td></tr>
+        <tr><td>Fix-through rate (blocking)</td><td id="fp-rate">–</td></tr>
+        <tr><td>Warning photo replaced</td><td id="fp-photo">–</td></tr>
+        <tr><td>Submitted via</td><td id="fp-via">–</td></tr>
+      </table>
+      <p class="fp-note">
+        Riskiest assumption under test: applicants change their application when prompted
+        (market risk). Success signal: fix-through rate. Record this run by hand in the
+        build log, then refresh the page for the next tester.
+      </p>
+    </div>
   </div>
 </main>
 
@@ -594,7 +627,20 @@
       ? ' All blocking issues were fixed before submission. '
       : ' Submitted with ' + remainingBlockers() + ' blocking issue(s) unfixed — your choice, and allowed. ';
     banner.classList.add('open');
+    showFacilitatorPanel(afterFixes);
     banner.scrollIntoView({ behavior: 'smooth' });
+  }
+  function showFacilitatorPanel(afterFixes) {
+    const totalBlocking = 2;
+    const fixed = totalBlocking - remainingBlockers();
+    const photoFixed = document.getElementById('issue-photo').classList.contains('fixed');
+    document.getElementById('fp-blocking').textContent = fixed + ' of ' + totalBlocking;
+    document.getElementById('fp-rate').textContent = Math.round(100 * fixed / totalBlocking) + '%';
+    document.getElementById('fp-photo').textContent = photoFixed ? 'Yes' : 'No';
+    document.getElementById('fp-via').textContent = afterFixes
+      ? '"Check again and submit" (all blockers fixed)'
+      : '"Submit anyway" with ' + remainingBlockers() + ' blocker(s) open';
+    document.getElementById('facilitator-panel').classList.add('open');
   }
 </script>
 
