@@ -26,6 +26,12 @@ Success metrics: returns rate by officers below 5% (from 17% today; success sign
 
 ## Experience and trust
 ## Risks (market, technical, team)
+
+Stakeholder pushback, from a role-played review (all roles and figures synthetic):
+
+- **Frontline operations director (technical/trust risk):** a "Ready to submit: Yes" that an officer still returns lands as a complaint on operations, and "Submit anyway" creates a record of knowingly accepted defects. Checklist ownership and rule-change lag are unresolved until named. Mitigation agreed: the checklist comes from the operations team and stays theirs to version; vetter-officer agreement rate measured against a threshold the director sets (95%+ discussed, backed by eval data); below-confidence items surface as "I am not sure — an officer will confirm" rather than passing silently; miss rate (post-vet returns) published with a stop line; a defined rule-change update process with a named maximum lag.
+- **Head of product (market/value risk):** the demo is one scripted case; no behavioural evidence yet that applicants read, trust or act on flags — the kill-switch signal (applicants make no change) is untested, and "Submit anyway" could reveal the vetter is a speed bump. Mitigation agreed: rapid user test measuring fix-through rate with the pass bar named before the test; paper funnel on sample returned applications to measure what share of real return reasons the vetter would catch (the upside ceiling) before any build.
+- **Chief executive sponsor (strategy/reputation risk):** the vetter keeps applicants in the loop, while the strategy kernel says to take them out of it — why fund the patch instead of the cure (form simplification, data pulling)? Plus headline risk if a government AI appears to "approve" an application that is then rejected. Mitigation: position the vetter as step one of the strategy — it ships inside the 10-week vendor window, and its flag frequency generates the prioritised backlog for the data-pulling integrations; the vetter never predicts outcomes and is labelled a completeness check with officers deciding; the kill switch makes this a bounded experiment, not a programme commitment.
 ## Build plan and handoff
 ## Agent role and guardrails
 ## Roles and operating model
