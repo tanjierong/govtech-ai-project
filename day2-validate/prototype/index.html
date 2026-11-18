@@ -199,7 +199,61 @@
     cursor: pointer;
   }
   button.fix-btn:hover { background: #e9f1f8; }
-  li.fixed .fix-btn { display: none; }
+  .fix-ui {
+    display: none;
+    margin-top: 8px;
+    padding: 12px;
+    background: #f0f4f9;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .fix-ui.open { display: block; }
+  .fix-ui label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .fix-ui input[type="text"] {
+    width: 100%;
+    max-width: 320px;
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .fix-ui .file-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    flex-wrap: wrap;
+  }
+  .fix-ui .file-name { color: var(--muted); font-style: italic; }
+  .fix-ui .file-name.chosen { color: var(--ink); font-style: normal; font-weight: 600; }
+  button.fix-confirm {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.fix-confirm:hover { background: var(--accent-dark); }
+  button.fix-cancel {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 7px 6px;
+  }
+  li.fixed > .fix-btn, li.fixed > .fix-ui { display: none; }
   li.fixed { color: var(--muted); }
   .fixed-tag {
     display: none;
@@ -209,6 +263,11 @@
     color: #1e6b3a;
   }
   li.fixed .fixed-tag { display: inline-block; }
+  .updated-flash { animation: flash 1.6s ease-out; }
+  @keyframes flash {
+    0% { background: #fff3bf; }
+    100% { background: transparent; }
+  }
   .ready-yes { color: #1e6b3a; font-weight: 700; }
   .vet-actions {
     display: flex;
@@ -315,7 +374,7 @@
       <dt>Identity number</dt><dd>X1111111B (fake number)</dd>
       <dt>Relationship</dt><dd>Father</dd>
       <dt>Custody declaration</dt><dd>Shared custody</dd>
-      <dt>Consent signatures provided</dt><dd>1 of 2 parents</dd>
+      <dt>Consent signatures provided</dt><dd id="form-signatures">1 of 2 parents</dd>
     </dl>
   </section>
 
@@ -323,7 +382,7 @@
     <h2>Documents</h2>
     <ul class="docs">
       <li>
-        <span>Child's photo<br><span class="doc-meta">photo.jpg · uploaded — photo taken September 2025 (14 months ago)</span></span>
+        <span>Child's photo<br><span class="doc-meta" id="form-photo-meta">photo.jpg · uploaded — photo taken September 2025 (14 months ago)</span></span>
         <span class="pill attached">Attached</span>
       </li>
       <li>
@@ -331,8 +390,8 @@
         <span class="pill attached">Attached</span>
       </li>
       <li>
-        <span>Child's birth certificate<br><span class="doc-meta">required for all child applications</span></span>
-        <span class="pill missing">Not attached</span>
+        <span>Child's birth certificate<br><span class="doc-meta" id="form-cert-meta">required for all child applications</span></span>
+        <span class="pill missing" id="form-cert-pill">Not attached</span>
       </li>
     </ul>
   </section>
@@ -370,24 +429,56 @@
           <li id="issue-cert">
             Birth certificate — not attached, required for all child applications
             <span class="fix">Fix: attach a clear scan of the child's birth certificate.</span>
-            <button class="fix-btn" type="button" onclick="fixIssue('issue-cert')">Fix this — attach birth certificate (simulated)</button>
-            <span class="fixed-tag">✓ Fixed: birth-certificate.pdf attached (simulated)</span>
+            <button class="fix-btn" type="button" onclick="openFixUI('issue-cert')">Fix this here</button>
+            <div class="fix-ui" id="fixui-cert">
+              <label>Attach the child's birth certificate (simulated file picker — no real file is read)</label>
+              <div class="file-row">
+                <button class="fix-confirm" type="button" onclick="chooseFile('cert')">Choose file…</button>
+                <span class="file-name" id="cert-file-name">no file chosen</span>
+              </div>
+              <div class="file-row">
+                <button class="fix-confirm" type="button" onclick="confirmCert()">Attach</button>
+                <button class="fix-cancel" type="button" onclick="closeFixUI('issue-cert')">Cancel</button>
+              </div>
+            </div>
+            <span class="fixed-tag" id="cert-fixed-tag"></span>
           </li>
           <li id="issue-consent">
             Parental consent — only one signature, but the form indicates shared custody
             <span class="fix">Fix: the second parent signs the consent section, or attach the court order granting sole custody.</span>
-            <button class="fix-btn" type="button" onclick="fixIssue('issue-consent')">Fix this — add second signature (simulated)</button>
-            <span class="fixed-tag">✓ Fixed: second parent's signature added (simulated)</span>
+            <button class="fix-btn" type="button" onclick="openFixUI('issue-consent')">Fix this here</button>
+            <div class="fix-ui" id="fixui-consent">
+              <label>Second parent's full name (type to sign — simulated consent)</label>
+              <input type="text" id="consent-name" placeholder="e.g. Lim Hui Fen (made-up name)">
+              <div class="file-row">
+                <button class="fix-confirm" type="button" onclick="confirmConsent()">Sign consent</button>
+                <button class="fix-cancel" type="button" onclick="closeFixUI('issue-consent')">Cancel</button>
+              </div>
+            </div>
+            <span class="fixed-tag" id="consent-fixed-tag"></span>
           </li>
         </ol>
       </div>
 
       <div class="vet-section warning">
-        <h3>Warnings (1)</h3>
+        <h3 id="warning-head">Warnings (1)</h3>
         <ol>
-          <li>
+          <li id="issue-photo">
             Child's photo — taken 14 months ago; photos older than 12 months are often queried for children because appearance changes
             <span class="fix">Suggestion: upload a photo taken within the last 3 months.</span>
+            <button class="fix-btn" type="button" onclick="openFixUI('issue-photo')">Replace photo</button>
+            <div class="fix-ui" id="fixui-photo">
+              <label>Upload a recent photo (simulated file picker — no real file is read)</label>
+              <div class="file-row">
+                <button class="fix-confirm" type="button" onclick="chooseFile('photo')">Choose file…</button>
+                <span class="file-name" id="photo-file-name">no file chosen</span>
+              </div>
+              <div class="file-row">
+                <button class="fix-confirm" type="button" onclick="confirmPhoto()">Upload</button>
+                <button class="fix-cancel" type="button" onclick="closeFixUI('issue-photo')">Cancel</button>
+              </div>
+            </div>
+            <span class="fixed-tag" id="photo-fixed-tag"></span>
           </li>
         </ol>
       </div>
@@ -429,8 +520,54 @@
 </main>
 
 <script>
-  function fixIssue(id) {
-    document.getElementById(id).classList.add('fixed');
+  function openFixUI(issueId) {
+    document.getElementById(issueId).querySelector('.fix-ui').classList.add('open');
+  }
+  function closeFixUI(issueId) {
+    document.getElementById(issueId).querySelector('.fix-ui').classList.remove('open');
+  }
+  function flash(el) {
+    el.classList.remove('updated-flash');
+    void el.offsetWidth;
+    el.classList.add('updated-flash');
+  }
+  // Simulated file picker: no real file dialog, no real file is read.
+  var chosen = {};
+  function chooseFile(kind) {
+    chosen[kind] = kind === 'cert' ? 'birth-certificate.pdf' : 'photo-nov-2026.jpg';
+    var el = document.getElementById(kind + '-file-name');
+    el.textContent = chosen[kind] + ' (simulated)';
+    el.classList.add('chosen');
+  }
+  function confirmCert() {
+    if (!chosen['cert']) { alert('Choose a file first (simulated).'); return; }
+    document.getElementById('cert-fixed-tag').textContent = '✓ Fixed: ' + chosen['cert'] + ' attached (simulated)';
+    document.getElementById('issue-cert').classList.add('fixed');
+    // Update the draft application above
+    var pill = document.getElementById('form-cert-pill');
+    pill.textContent = 'Attached';
+    pill.className = 'pill attached';
+    var meta = document.getElementById('form-cert-meta');
+    meta.textContent = chosen['cert'] + ' · uploaded just now (simulated)';
+    flash(meta.closest('li'));
+  }
+  function confirmConsent() {
+    var name = document.getElementById('consent-name').value.trim();
+    if (!name) { alert('Type the second parent\'s name to sign (made-up name).'); return; }
+    document.getElementById('consent-fixed-tag').textContent = '✓ Fixed: consent signed by ' + name + ' (simulated)';
+    document.getElementById('issue-consent').classList.add('fixed');
+    var sig = document.getElementById('form-signatures');
+    sig.textContent = '2 of 2 parents';
+    flash(sig);
+  }
+  function confirmPhoto() {
+    if (!chosen['photo']) { alert('Choose a file first (simulated).'); return; }
+    document.getElementById('photo-fixed-tag').textContent = '✓ Updated: ' + chosen['photo'] + ' uploaded (simulated)';
+    document.getElementById('issue-photo').classList.add('fixed');
+    document.getElementById('warning-head').textContent = 'Warnings (0)';
+    var meta = document.getElementById('form-photo-meta');
+    meta.textContent = chosen['photo'] + ' · uploaded just now — photo taken this month (simulated)';
+    flash(meta.closest('li'));
   }
   function remainingBlockers() {
     return ['issue-cert', 'issue-consent']

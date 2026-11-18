@@ -22,12 +22,17 @@ passport application and clicks "Check and submit my application" instead of pla
   with fixes, 1 warning, 1 "I am not sure — an officer will confirm" item (the fallback
   behaviour), the checked-and-fine list, and the officers-decide note. The card is
   labelled as scripted, not a live model.
-- Interactions (the kill-switch test): each blocking issue has a "Fix this" button that
-  simulates the fix. "Check again and submit" re-counts the blockers — if all are fixed,
-  Ready to submit flips to Yes and the application submits (simulated). "Submit anyway,
-  without fixing" always works: the check can never block submission, which is the
-  Control trust gap from the AI UX flow. The submitted banner records whether the
-  applicant fixed the issues or skipped them — the behaviour the kill switch watches.
+- Interactions (the kill-switch test): every flag is fixable on the spot, inline in the
+  result card. "Fix this here" on the birth certificate opens a simulated file picker
+  and attaching updates the Documents list above (Not attached becomes Attached). The
+  consent fix asks for the second parent's made-up name as a typed signature and flips
+  the form's "1 of 2 parents" to "2 of 2". The photo warning has "Replace photo", which
+  updates the photo row. No real files are read; every control says it is simulated.
+- "Check again and submit" re-counts the blockers — if all are fixed, Ready to submit
+  flips to Yes and the application submits (simulated). "Submit anyway, without fixing"
+  always works: the check can never block submission, which is the Control trust gap
+  from the AI UX flow. The submitted banner records whether the applicant fixed the
+  issues or skipped them — the behaviour the kill switch watches.
 
 ## What this tests
 
