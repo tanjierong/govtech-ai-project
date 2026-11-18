@@ -268,6 +268,63 @@
     0% { background: #fff3bf; }
     100% { background: transparent; }
   }
+
+  /* Simulated Singpass login */
+  #screen-app { display: none; }
+  #screen-app.open { display: block; }
+  #screen-login { max-width: 420px; margin: 40px auto; }
+  .login-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 28px 24px;
+    text-align: center;
+  }
+  .login-card h1 { font-size: 22px; margin-bottom: 6px; }
+  .login-card .login-sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  button.singpass-btn {
+    width: 100%;
+    background: #c8102e;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 18px;
+    cursor: pointer;
+  }
+  button.singpass-btn:hover { background: #a30d26; }
+  .login-note {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  #login-progress {
+    display: none;
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .prefill-badge {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1e6b3a;
+    background: #e2f0e6;
+    border-radius: 999px;
+    padding: 1px 8px;
+    white-space: nowrap;
+  }
+  .prefill-note {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    background: #e9f1f8;
+    border-radius: 8px;
+  }
   .ready-yes { color: #1e6b3a; font-weight: 700; }
   .vet-actions {
     display: flex;
@@ -356,15 +413,33 @@
 </header>
 
 <main>
+  <div id="screen-login">
+    <div class="login-card">
+      <h1>Renew a child's passport</h1>
+      <p class="login-sub">Log in and we will fill in what the government already knows, so you only check and add what's missing.</p>
+      <button class="singpass-btn" type="button" onclick="singpassLogin()">Log in with Singpass (simulated)</button>
+      <div id="login-progress">Retrieving your records… (simulated — no real login, no real data)</div>
+      <p class="login-note">
+        PROTOTYPE: this is a pretend Singpass button for a course project. It performs no
+        real authentication and retrieves nothing. Everything it "prefills" is made-up
+        sample data.
+      </p>
+    </div>
+  </div>
+
+  <div id="screen-app">
   <nav class="steps" aria-label="Application steps">
-    <span>1 · Who is applying</span>
-    <span>2 · Application details</span>
-    <span>3 · Documents</span>
-    <span class="current">4 · Review and submit</span>
+    <span>1 · Log in — done</span>
+    <span class="current">2 · Verify details and documents</span>
+    <span>3 · Check and submit</span>
   </nav>
 
-  <h1>Review your application</h1>
-  <p class="lede">Check everything below before you submit. You are applying on behalf of a child.</p>
+  <h1>Verify your application</h1>
+  <p class="lede">We filled in what your records already show (made-up sample data). Check each item, then add the documents we could not pull.</p>
+  <p class="prefill-note">
+    Fields marked <span class="prefill-badge">Prefilled from myInfo (simulated)</span> were
+    filled for you from made-up records. You did not have to type them.
+  </p>
 
   <section class="card">
     <h2>Application type</h2>
@@ -377,38 +452,44 @@
   <section class="card">
     <h2>Child's details (made up)</h2>
     <dl class="fields">
-      <dt>Full name</dt><dd>Tan Mei Ling (fictional)</dd>
-      <dt>Date of birth</dt><dd>4 March 2018</dd>
-      <dt>Identity number</dt><dd>X0000000A (fake number)</dd>
-      <dt>Current passport number</dt><dd>K0000000 (fake number)</dd>
-      <dt>Passport expiry</dt><dd>2 February 2027</dd>
+      <dt>Full name</dt><dd>Tan Mei Ling (fictional) <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
+      <dt>Date of birth</dt><dd>4 March 2018 <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
+      <dt>Identity number</dt><dd>X0000000A (fake number) <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
+      <dt>Current passport number</dt><dd>K0000000 (fake number) <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
+      <dt>Passport expiry</dt><dd>2 February 2027 <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
     </dl>
   </section>
 
   <section class="card">
     <h2>Parent / guardian details (made up)</h2>
     <dl class="fields">
-      <dt>Full name</dt><dd>Tan Wei Ming (fictional)</dd>
-      <dt>Identity number</dt><dd>X1111111B (fake number)</dd>
-      <dt>Relationship</dt><dd>Father</dd>
-      <dt>Custody declaration</dt><dd>Shared custody</dd>
-      <dt>Consent signatures provided</dt><dd id="form-signatures">1 of 2 parents</dd>
+      <dt>Full name</dt><dd>Tan Wei Ming (fictional) <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
+      <dt>Identity number</dt><dd>X1111111B (fake number) <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
+      <dt>Relationship</dt><dd>Father <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
+      <dt>Custody declaration</dt><dd>Shared custody <span class="prefill-badge">Prefilled from myInfo (simulated)</span></dd>
+      <dt>Consent signatures provided</dt><dd id="form-signatures">1 of 2 parents — second signature cannot be pulled; sign at the check step</dd>
     </dl>
   </section>
 
   <section class="card">
-    <h2>Documents</h2>
+    <h2>Documents — add what we could not pull</h2>
     <ul class="docs">
       <li>
-        <span>Child's photo<br><span class="doc-meta" id="form-photo-meta">photo.jpg · uploaded — photo taken September 2025 (14 months ago)</span></span>
+        <span>Parent's identity document<br><span class="doc-meta">parent-id.pdf · pulled from records <span class="prefill-badge">Prefilled from myInfo (simulated)</span></span></span>
         <span class="pill attached">Attached</span>
       </li>
       <li>
-        <span>Parent's identity document<br><span class="doc-meta">parent-id.pdf · uploaded</span></span>
-        <span class="pill attached">Attached</span>
+        <span>Child's photo — a recent photo cannot be pulled; upload one<br>
+          <span class="doc-meta" id="form-photo-meta">photo.jpg from your last application · taken September 2025 (14 months ago)</span>
+          <button class="fix-btn" type="button" onclick="uploadDoc('photo')">Upload a recent photo (simulated)</button>
+        </span>
+        <span class="pill attached" id="form-photo-pill">Old photo</span>
       </li>
       <li>
-        <span>Child's birth certificate<br><span class="doc-meta" id="form-cert-meta">required for all child applications</span></span>
+        <span>Child's birth certificate — not in pulled records; upload it<br>
+          <span class="doc-meta" id="form-cert-meta">required for all child applications</span>
+          <button class="fix-btn" type="button" onclick="uploadDoc('cert')">Upload birth certificate (simulated)</button>
+        </span>
         <span class="pill missing" id="form-cert-pill">Not attached</span>
       </li>
     </ul>
@@ -417,13 +498,13 @@
   <section class="card">
     <h2>Payment</h2>
     <dl class="fields">
-      <dt>Fee</dt><dd>$70.00 (made-up amount)</dd>
+      <dt>Fee</dt><dd>$70.00 (made-up amount) <span class="prefill-badge">From the published fee table (simulated)</span></dd>
       <dt>Method</dt><dd>Credit card ending 0000 (fake)</dd>
     </dl>
   </section>
 
   <div class="actions">
-    <button class="check-submit" type="button" onclick="document.getElementById('vet-result').classList.add('open'); document.getElementById('vet-result').scrollIntoView({behavior:'smooth'});">
+    <button class="check-submit" type="button" onclick="openVetResult()">
       Check and submit my application
     </button>
     <p class="check-hint">
@@ -538,6 +619,7 @@
     <div id="facilitator-panel">
       <h3>FACILITATOR PANEL — this run's numbers (made-up test data; nothing is stored or sent)</h3>
       <table>
+        <tr><td>Fixed at step 2 (before the check)</td><td id="fp-prefix">–</td></tr>
         <tr><td>Blocking issues fixed</td><td id="fp-blocking">–</td></tr>
         <tr><td>Fix-through rate (blocking)</td><td id="fp-rate">–</td></tr>
         <tr><td>Warning photo replaced</td><td id="fp-photo">–</td></tr>
@@ -550,9 +632,63 @@
       </p>
     </div>
   </div>
+  </div><!-- /screen-app -->
 </main>
 
 <script>
+  // Simulated Singpass login: no real authentication, no real data.
+  function singpassLogin() {
+    document.getElementById('login-progress').style.display = 'block';
+    setTimeout(function () {
+      document.getElementById('screen-login').style.display = 'none';
+      document.getElementById('screen-app').classList.add('open');
+      window.scrollTo(0, 0);
+    }, 900);
+  }
+
+  // Step 2 uploads: fixing a gap BEFORE the check. The vet result reflects them.
+  var step2Done = { cert: false, photo: false };
+  function uploadDoc(kind) {
+    step2Done[kind] = true;
+    if (kind === 'cert') {
+      var pill = document.getElementById('form-cert-pill');
+      pill.textContent = 'Attached';
+      pill.className = 'pill attached';
+      var meta = document.getElementById('form-cert-meta');
+      meta.textContent = 'birth-certificate.pdf · uploaded just now (simulated)';
+      flash(meta.closest('li'));
+      document.getElementById('issue-cert').classList.add('fixed');
+      document.getElementById('cert-fixed-tag').textContent = '✓ Resolved at step 2: birth-certificate.pdf attached (simulated)';
+    } else {
+      var ppill = document.getElementById('form-photo-pill');
+      ppill.textContent = 'Attached';
+      ppill.className = 'pill attached';
+      var pmeta = document.getElementById('form-photo-meta');
+      pmeta.textContent = 'photo-nov-2026.jpg · uploaded just now — photo taken this month (simulated)';
+      flash(pmeta.closest('li'));
+      document.getElementById('issue-photo').classList.add('fixed');
+      document.getElementById('photo-fixed-tag').textContent = '✓ Resolved at step 2: photo-nov-2026.jpg uploaded (simulated)';
+      document.getElementById('warning-head').textContent = 'Warnings (0)';
+    }
+    refreshVetCounts();
+  }
+  function refreshVetCounts() {
+    document.getElementById('blocking-head').textContent = 'Blocking issues (' + remainingBlockers() + ')';
+  }
+  function openVetResult() {
+    refreshVetCounts();
+    const ready = document.getElementById('ready-flag');
+    if (remainingBlockers() === 0) {
+      ready.textContent = 'Yes';
+      ready.className = 'ready-yes';
+    } else {
+      ready.textContent = 'Not yet';
+      ready.className = 'ready-no';
+    }
+    document.getElementById('vet-result').classList.add('open');
+    document.getElementById('vet-result').scrollIntoView({ behavior: 'smooth' });
+  }
+
   function openFixUI(issueId) {
     document.getElementById(issueId).querySelector('.fix-ui').classList.add('open');
   }
@@ -634,6 +770,8 @@
     const totalBlocking = 2;
     const fixed = totalBlocking - remainingBlockers();
     const photoFixed = document.getElementById('issue-photo').classList.contains('fixed');
+    const preFixed = (step2Done.cert ? 1 : 0) + (step2Done.photo ? 1 : 0);
+    document.getElementById('fp-prefix').textContent = preFixed + ' item(s)' + (step2Done.cert ? ' incl. birth certificate' : '');
     document.getElementById('fp-blocking').textContent = fixed + ' of ' + totalBlocking;
     document.getElementById('fp-rate').textContent = Math.round(100 * fixed / totalBlocking) + '%';
     document.getElementById('fp-photo').textContent = photoFixed ? 'Yes' : 'No';
