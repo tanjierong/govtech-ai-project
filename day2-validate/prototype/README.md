@@ -27,6 +27,15 @@ passport application and clicks "Check and submit my application" instead of pla
   "Entered by you", and goes back into the vetter's full-check list. The vetter
   never flags an unedited prefilled field; its result splits "Checked and fine"
   into verified-from-Singpass and checked-by-hand.
+- Prefill failures (prompt chain stage 2, Behavior): a facilitator box on the login
+  screen can force a failure for a run. "No records come back" shows a plain-language
+  banner — no error codes — and switches everything to manual entry; the vet result
+  then notes the details were entered manually, as for a guest. "Partial failure"
+  prefills the parent only. The banner's "Try Singpass again" asks before replacing
+  anything typed in the meantime. "Session expires at the check step" keeps the whole
+  draft and offers re-login or continuing without Singpass (which removes every
+  Singpass badge, so nothing unverified is shown as verified). A prefill failure
+  never blocks starting or submitting — it costs convenience only.
 - Step 2 — verify and add documents: the applicant checks the details and
   uploads what cannot be pulled (birth certificate, a new photo — simulated pickers).
   Items resolved here disappear from the vet result before it ever shows, and the
