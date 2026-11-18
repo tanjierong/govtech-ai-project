@@ -334,6 +334,36 @@
   }
   button.picker-option:hover { border-color: var(--accent); background: #e9f1f8; }
   .picker-warn { font-size: 12px; color: #8a6a12; margin: 2px 0 14px; }
+  .sim-box {
+    margin-top: 16px;
+    padding: 10px 12px;
+    background: #f4efff;
+    border: 2px dashed #6b4bb8;
+    border-radius: 8px;
+    font-size: 12px;
+    text-align: left;
+    color: #4a3580;
+  }
+  .sim-box label { display: block; font-weight: 700; margin-bottom: 4px; }
+  .sim-box select {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 13px;
+    border: 1px solid #c9bbe8;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .flow-banner {
+    display: none;
+    background: var(--warn-bg);
+    border: 1.5px solid var(--warn-line);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .flow-banner.open { display: block; }
+  .flow-banner .file-row { margin-top: 8px; margin-bottom: 0; }
   button.picker-other {
     background: none;
     border: none;
@@ -497,6 +527,15 @@
         real authentication and retrieves nothing. Everything it "prefills" is made-up
         sample data. Skipping Singpass costs convenience only — you can still apply.
       </p>
+      <div class="sim-box">
+        <label for="sim-failure">FACILITATOR — simulate a prefill failure for this run (testers: leave as is)</label>
+        <select id="sim-failure">
+          <option value="ok" selected>Prefill works (normal run)</option>
+          <option value="empty">Forced failure: login works, but no records come back</option>
+          <option value="partial">Partial failure: your details come back, your children's do not</option>
+          <option value="expire">Session expires at the check step</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -547,6 +586,7 @@
   </nav>
 
   <h1>Verify your application</h1>
+  <div class="flow-banner" id="fallback-banner"></div>
   <p class="lede" id="lede-text"></p>
   <p class="prefill-note" id="prefill-note"></p>
 
@@ -780,8 +820,11 @@
   var state = {
     mode: null,          // 'singpass' or 'guest'
     childLinked: false,  // true when the child was picked from the linked list
+    failure: 'ok',       // facilitator-chosen: ok | empty | partial | expire
+    prefill: { child: false, parent: false },
+    reloggedIn: false,
     values: {},
-    edited: {}           // fields the applicant unlocked and changed
+    edited: {}           // fields the applicant typed or changed by hand
   };
 
   function esc(s) {
@@ -791,6 +834,7 @@
 
   // ---------- Login, renewal type, child picker, guest path ----------
   function singpassLogin() {
+    state.failure = document.getElementById('sim-failure').value;
     document.getElementById('login-progress').style.display = 'block';
     setTimeout(function () {
       state.mode = 'singpass';
@@ -806,18 +850,102 @@
       return;
     }
     document.getElementById('screen-type').classList.add('hidden');
-    if (state.mode === 'singpass') {
-      document.getElementById('screen-picker').classList.remove('hidden');
-      window.scrollTo(0, 0);
-    } else {
+    if (state.mode !== 'singpass') {
       state.childLinked = false;
+      state.prefill = { child: false, parent: false };
       setValues(PERSONAS[0]);
       enterApp();
+      return;
     }
+    if (state.failure === 'empty') {
+      // Forced failure: logged in, but the records fetch returns nothing.
+      // Never a dead end, never raw error text — fall back to manual entry.
+      state.childLinked = false;
+      state.prefill = { child: false, parent: false };
+      setValues(PERSONAS[0]);
+      enterApp();
+      showFallbackBanner('full');
+      return;
+    }
+    if (state.failure === 'partial') {
+      // Partial failure: the parent's record arrives, the children list does not.
+      // Prefill what arrived; the rest is manual entry.
+      state.childLinked = false;
+      state.prefill = { child: false, parent: true };
+      setValues(PERSONAS[0]);
+      enterApp();
+      showFallbackBanner('children');
+      return;
+    }
+    state.prefill = { child: true, parent: true };
+    document.getElementById('screen-picker').classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }
+  function showFallbackBanner(what) {
+    var b = document.getElementById('fallback-banner');
+    var msg = what === 'full'
+      ? '<strong>We could not fetch your details from Singpass.</strong> You can fill them in yourself. Anything you type is kept.'
+      : '<strong>We fetched your details, but not your children\'s.</strong> You can fill in your child\'s details yourself. Anything you type is kept.';
+    b.innerHTML = msg +
+      '<div class="file-row"><button class="fix-confirm" type="button" onclick="retrySingpass()">Try Singpass again (simulated)</button></div>';
+    b.classList.add('open');
+  }
+  function retrySingpass() {
+    // The retry works. It must not silently overwrite anything typed meanwhile — ask first.
+    var typed = Object.keys(state.edited);
+    if (typed.length > 0) {
+      var ok = confirm('Singpass is back (simulated). Replace the ' + typed.length +
+        ' field(s) you typed with the pulled values? OK replaces them; Cancel keeps what you typed.');
+      if (!ok) {
+        state.prefill = { child: state.childLinked, parent: true };
+        // Fields the applicant typed stay theirs (still in state.edited, so still unlocked).
+        buildFields(); setModeTexts();
+        hideFallbackBanner();
+        flash(document.getElementById('parent-fields'));
+        return;
+      }
+      state.edited = {};
+    }
+    state.childLinked = true;
+    state.prefill = { child: true, parent: true };
+    setValues(PERSONAS[0]);
+    buildFields(); setModeTexts();
+    hideFallbackBanner();
+    flash(document.getElementById('child-fields'));
+  }
+  function hideFallbackBanner() {
+    var b = document.getElementById('fallback-banner');
+    b.classList.remove('open');
+    b.innerHTML = '';
+  }
+  function sessionExpiry() {
+    // Session expires mid-application: offer re-login, keep the draft.
+    var b = document.getElementById('fallback-banner');
+    b.innerHTML = '<strong>Your Singpass session has expired (simulated).</strong> ' +
+      'Your draft is kept — nothing you typed or fixed is lost. Log in again to continue, or carry on without Singpass; the check then treats your details as entered by hand.' +
+      '<div class="file-row">' +
+      '<button class="fix-confirm" type="button" onclick="reloginAfterExpiry()">Log in again (simulated)</button>' +
+      '<button class="fix-cancel" type="button" onclick="continueWithoutRelogin()">Continue without Singpass</button></div>';
+    b.classList.add('open');
+    b.scrollIntoView({ behavior: 'smooth' });
+  }
+  function reloginAfterExpiry() {
+    state.reloggedIn = true;
+    hideFallbackBanner();
+    finishVetResult();
+  }
+  function continueWithoutRelogin() {
+    // Badges must not claim Singpass verification once the session is gone.
+    state.mode = 'guest';
+    state.prefill = { child: false, parent: false };
+    buildFields(); setModeTexts();
+    hideFallbackBanner();
+    finishVetResult();
   }
   function pickChild(i) {
     state.mode = 'singpass';
     state.childLinked = true;
+    state.prefill = { child: true, parent: true };
     setValues(PERSONAS[i]);
     enterApp();
   }
@@ -829,6 +957,7 @@
     if (!name) { alert('Type the child\'s made-up name first.'); return; }
     state.mode = 'singpass';
     state.childLinked = false;
+    state.prefill = { child: false, parent: true };
     var vals = { cname: esc(name) + ' (typed by you — made up)' };
     for (var k in SAMPLE_CHILD) vals[k] = SAMPLE_CHILD[k];
     setValues(vals);
@@ -857,8 +986,7 @@
   // ---------- Render the form fields: locked prefill, unlock to edit ----------
   function isPrefilled(group) {
     if (state.mode !== 'singpass') return false;
-    if (group === 'child') return state.childLinked;
-    return true;
+    return state.prefill[group];
   }
   function enterApp() {
     document.getElementById('screen-login').classList.add('hidden');
@@ -882,12 +1010,17 @@
       dl.innerHTML = html;
       FIELDS[group].forEach(function (f) { renderField(group, f.key); });
     });
-    // The parent's identity document was only "pulled" if Singpass was used.
-    if (state.mode === 'guest') {
-      document.getElementById('parent-id-src').textContent = 'uploaded by you (simulated)';
-      var b = document.getElementById('parent-id-badge');
-      b.className = 'manual-badge';
-      b.textContent = 'Entered by you (made up)';
+    // The parent's identity document was only "pulled" if its record arrived.
+    var idSrc = document.getElementById('parent-id-src');
+    var idBadge = document.getElementById('parent-id-badge');
+    if (isPrefilled('parent')) {
+      idSrc.textContent = 'pulled from records';
+      idBadge.className = 'prefill-badge';
+      idBadge.textContent = '🔒 From Singpass (simulated)';
+    } else {
+      idSrc.textContent = 'uploaded by you (simulated)';
+      idBadge.className = 'manual-badge';
+      idBadge.textContent = 'Entered by you (made up)';
     }
   }
   function findField(key) {
@@ -930,10 +1063,11 @@
     var input = document.getElementById('fin-' + key);
     var newVal = input.value.trim();
     if (!newVal) { alert('The field cannot be empty. Cancel to keep the pulled value.'); return; }
-    var wasLocked = isPrefilled(group) && !state.edited[key];
     if (newVal !== state.values[key]) {
       state.values[key] = newVal;
-      if (wasLocked) state.edited[key] = true; // the edited field loses its badge for good
+      // Any hand edit is recorded: a prefilled field loses its badge for good,
+      // and a retried prefill must ask before replacing what was typed.
+      state.edited[key] = true;
     }
     renderField(group, key);
     flash(document.getElementById('fd-' + key));
@@ -943,12 +1077,19 @@
     var note = document.getElementById('prefill-note');
     var step1 = document.getElementById('step1-label');
     var logout = document.getElementById('logout-btn');
-    if (state.mode === 'singpass') {
+    if (state.mode === 'singpass' && !state.prefill.parent) {
+      // Logged in, but nothing came back: reads like a guest run, in plain words.
+      step1.textContent = '1 · Log in — done (nothing could be fetched)';
+      lede.textContent = 'Nothing was prefilled, so the check will cover every field in full. (In this prototype the fields come pre-typed with made-up sample data so you can keep clicking; in the real service you would type them.)';
+      note.innerHTML = 'No field carries a <span class="prefill-badge">🔒 From Singpass (simulated)</span> badge, because no records came back. Every field shows <span class="manual-badge">Entered by you (made up)</span> and gets fully checked. You can still apply — nothing is lost.';
+    } else if (state.mode === 'singpass') {
       step1.textContent = '1 · Log in — done';
       lede.textContent = 'We filled in what your records already show (made-up sample data). Check each item, then add the documents we could not pull.';
       note.innerHTML = 'Fields marked <span class="prefill-badge">🔒 From Singpass (simulated)</span> were pulled for you and are locked — the check treats them as verified and never flags them. ' +
         'If one is out of date (for example your address), use <strong>Unlock to edit</strong>: an edited field loses its badge and gets fully checked instead.';
-      if (!state.childLinked) {
+      if (!state.prefill.child && state.failure === 'partial') {
+        note.innerHTML += '<br><br>Your child\'s details could not be fetched, so they are not from Singpass — fill them in yourself; the check covers all of them.';
+      } else if (!state.childLinked) {
         note.innerHTML += '<br><br>You typed your child\'s name yourself, so the child\'s details are not from Singpass — the check covers all of them, and it will ask for proof of relationship (a warning, not a block).';
       }
     } else {
@@ -1009,7 +1150,7 @@
         else hand.push(name + (state.edited[f.key] ? ' (edited by you)' : ''));
       });
     });
-    if (state.mode === 'singpass') verified.push("parent's identity document");
+    if (isPrefilled('parent')) verified.push("parent's identity document");
     else hand.push("parent's identity document");
     hand.push('fee');
 
@@ -1023,12 +1164,20 @@
     } else {
       vEl.style.display = 'none';
       document.getElementById('fine-rule-note').textContent =
-        'Nothing came from Singpass, so every field above was checked by hand.';
+        'Details entered manually — nothing came from Singpass, so every field above was checked by hand, as for a guest application.';
     }
     hEl.innerHTML = '<strong>Checked by hand (' + hand.length + '):</strong> ' + hand.join(', ') + '.';
     document.getElementById('fine-head').textContent = 'Checked and fine (' + (verified.length + hand.length) + ' items)';
   }
   function openVetResult() {
+    // Session expiry fires at the check step: offer re-login, keep the draft.
+    if (state.mode === 'singpass' && state.failure === 'expire' && !state.reloggedIn) {
+      sessionExpiry();
+      return;
+    }
+    finishVetResult();
+  }
+  function finishVetResult() {
     refreshVetCounts();
     buildFineSection();
     var ready = document.getElementById('ready-flag');
@@ -1128,9 +1277,16 @@
     var photoFixed = document.getElementById('issue-photo').classList.contains('fixed');
     var preFixed = (step2Done.cert ? 1 : 0) + (step2Done.photo ? 1 : 0);
     var editedCount = Object.keys(state.edited).length;
-    var modeLabel = state.mode === 'guest' ? 'Guest — manual entry, full check'
-      : (state.childLinked ? 'Singpass prefill — child from linked list'
-        : 'Singpass prefill — child typed in (not linked)');
+    var modeLabel;
+    if (state.mode === 'guest') modeLabel = 'Guest — manual entry, full check';
+    else if (!state.prefill.parent) modeLabel = 'Singpass login, manual entry';
+    else if (state.childLinked) modeLabel = 'Singpass prefill — child from linked list';
+    else if (state.failure === 'partial') modeLabel = 'Singpass prefill — parent only';
+    else modeLabel = 'Singpass prefill — child typed in (not linked)';
+    if (state.failure !== 'ok') {
+      var failLabel = { empty: 'forced prefill failure (no records)', partial: 'partial failure (children missing)', expire: 'session expired at check' };
+      modeLabel += ' · ' + failLabel[state.failure];
+    }
     document.getElementById('fp-mode').textContent = modeLabel;
     document.getElementById('fp-edited').textContent = editedCount + ' field(s)';
     document.getElementById('fp-prefix').textContent = preFixed + ' item(s)' + (step2Done.cert ? ' incl. birth certificate' : '');
