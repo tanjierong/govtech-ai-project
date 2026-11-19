@@ -37,6 +37,22 @@ Where the same agent pattern could go, in order of readiness — not a commitmen
 - Every disputed flag — a human reviews it; the agent never argues.
 - The run log numbers (fix-through rate, flags per run, stop conditions hit) — reviewed against the metrics plan's stop line.
 
+## Permissions
+
+One row per tool the agent uses, with its tier and a proposed setting — yours to decide. Tiers: **read** (looks at something), **draft** (produces text a human reviews), **write** (changes stored state), **send** (leaves the system toward a person or service). Settings: **auto** (runs without asking), **confirm** (a named human approves each time), **block** (never).
+
+This table is per tool; the 17-row per-action table in `ai-prd.md` (decided 19 Nov 2026) is the finer grain. The two must not disagree: each row below notes the PRD rows it carries, and the stress runs (5–10 in `agent-run-log.md`) that shaped it.
+
+| # | Tool | Tier | Setting | Status | What the stress test showed |
+|---|---|---|---|---|---|
+| 1 | Read the rule file (`context-skill.md`) | read | auto | Proposed | Runs 7/10: an empty read is a stop, never a from-memory fallback — so auto is safe only because the tool's failure is a stop condition, not a retry. Carries PRD row 1. |
+| 2 | Read the current draft application | read | auto | Proposed | Runs 5/8: an empty draft is a named stop. Runs 6/9: what the draft *says* never becomes a rule — citations get looked up, not believed. Run 3: a real-data draft is refused at read, unprocessed. Carries PRD row 2. |
+| 3 | Write the VET RESULT (the one output) | draft | auto | Proposed | Runs 8/10: the tool is withheld entirely on a stop — no result on an empty draft or an empty rule source, because zero flags would read as a pass. Run 4: checked and trusted stay separate counts. Carries PRD rows 3–6. |
+| 4 | Write the run log entry (run ID, counts, rules cited) | write | auto | Proposed | Every run 1–10 logged, including the stops — the log is how misses trace to rules, so it must fire on failures too, without asking. No personal data, run IDs only. Carries PRD row 7. |
+| 5 | Escalate to the team (missing table, empty rule file, suspected real data) | send | auto | Proposed | Runs 2, 3, 5, 7, 8, 10 all ended in an escalation or refusal notice. This is the safety valve: putting confirm on it would silence the agent exactly when something is wrong. Carries PRD row 8. |
+
+Everything not in this table, the agent has no tool for: it cannot edit the draft, submit or block an application, change the rule file, message the applicant outside the VET RESULT, or keep anything after a run — those are the PRD's blocked rows (9–14), enforced here by absence. The three confirm-gated changes (new checklist version, in front of testers, new situation — PRD rows 15–17) are changes humans make *to* the agent, not tools the agent holds, so they have no row.
+
 ## Stop conditions
 
 The agent stops itself and hands to a human when:
