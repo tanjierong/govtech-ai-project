@@ -34,7 +34,18 @@ Stakeholder pushback, from a role-played review (all roles and figures synthetic
 - **Chief executive sponsor (strategy/reputation risk):** the vetter keeps applicants in the loop, while the strategy kernel says to take them out of it — why fund the patch instead of the cure (form simplification, data pulling)? Plus headline risk if a government AI appears to "approve" an application that is then rejected. Mitigation: position the vetter as step one of the strategy — it ships inside the 10-week vendor window, and its flag frequency generates the prioritised backlog for the data-pulling integrations; the vetter never predicts outcomes and is labelled a completeness check with officers deciding; the kill switch makes this a bounded experiment, not a programme commitment.
 ## Build plan and handoff
 ## Agent role and guardrails
-## Roles and operating model
+
+The agent is the vetter: it checks one draft application against the operations team's published checklist and returns one VET RESULT, every flag citing its rule and giving one exact fix. One situation today (child renewal), made-up data only. Its instructions live in `day3-build/CLAUDE.md`; its operating view in `day3-build/agent-control-panel.md`.
+
+Guardrails, in one breath each:
+
+- It decides alone only how to classify what it checked; it never acts on the world.
+- It proposes fixes; the applicant decides, and "Submit anyway" always works — the check can never block.
+- It never predicts or implies approval; an ICA officer decides every application.
+- It flags only what the published checklist says, cites the rule, and says "I am not sure — an officer will confirm" rather than guess.
+- It never presents an unchecked item as checked — trusted prefilled data is labelled, not claimed.
+- It stops itself on an unknown situation, a missing rule file, or anything that looks like real personal data — refusing without processing it.
+- Humans keep the rules (operations), the thresholds (set before measuring), the eval gate before testers, and the go/no-go after the kill switch.
 ## Strategy and roadmap
 
 ### Strategy kernel
