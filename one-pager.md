@@ -46,6 +46,22 @@ Guardrails, in one breath each:
 - It never presents an unchecked item as checked — trusted prefilled data is labelled, not claimed.
 - It stops itself on an unknown situation, a missing rule file, or anything that looks like real personal data — refusing without processing it.
 - Humans keep the rules (operations), the thresholds (set before measuring), the eval gate before testers, and the go/no-go after the kill switch.
+
+## Roles and operating model
+
+Six roles, no names (all made-up course stand-ins); the full decision rights table is in `day3-build/operating-model.md`. Product owner (owns problem, PRD and experiment), operations lead (owns the checklist; confirms the agent's identity changes), engineering lead (owns build and incident response), executive sponsor (funds; owns strategy position), facilitator (runs tests, records numbers), ICA officer (decides every application — outside the project, untouched by every row).
+
+Decision rights in one line each:
+
+- **Scope** — product owner decides what the agent covers; operations and engineering consulted.
+- **Permissions** — product owner decides each action's setting (decided 19 Nov 2026: working loop auto, hard lines blocked, identity changes confirmed).
+- **Vendor and model** — engineering lead decides, within the 10-week vendor window.
+- **Go-live** — operations lead decides, after the eval gate passes: nothing meets testers or widens without their confirm.
+- **Incident** — engineering lead stops the agent immediately, no meeting needed; product owner decides what happens next.
+- **Retire** — executive sponsor only.
+
+Principles: anyone can stop, only the sponsor can retire; operations hold the go, product holds the what; no decision touches the officer's.
+
 ## Strategy and roadmap
 
 ### Strategy kernel
