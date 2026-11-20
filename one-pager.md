@@ -79,4 +79,17 @@ Principles: anyone can stop, only the sponsor can retire; operations hold the go
 ## Metrics plan and stop line
 ## Evals and gates
 ## Decision: continue, pivot or stop
+
+**Continue** — as a bounded experiment, not a build. Why, in one line: the harness passed every test we could write (12 of 12 eval cases on 20 November 2026, all five deal-breakers held), but the kill-switch question — will applicants actually act on the flags? — is still unanswered, so the work continues to the fix-through test with the kill switch armed and the 20 December 2026 review date set.
+
 ## Open issues
+
+Each needs an owner and a date; all made-up roles:
+
+- **Product owner's calibration scores** for eval cases 2, 5 and 7 plus the planted bad answer — the input that closes grader calibration (eval plan, week 1).
+- **The outsider-written eval case** — one input from someone who has never read the run log, so the eval stops testing only what it was built from (week 2).
+- **Vetter–officer agreement threshold** — the operations director discussed 95%+; the exact number and its eval set are unset.
+- **Miss-rate stop line** — named in principle, no number on it yet; due at the 20 December 2026 review (week 4).
+- **Sponsor's "patch vs cure" objection** — the roadmap positioning (vetter as step one toward data-pulling) still needs their sign-off.
+- **Real-data governance** — Singpass/MyInfo consent, retention and audit requirements, before any non-synthetic run ever happens.
+- **Eval bar for widening** — what the pass bar becomes when new situations (adult renewal, first-time) add cases and questions.
