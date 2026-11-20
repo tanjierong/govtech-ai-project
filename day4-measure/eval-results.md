@@ -55,6 +55,24 @@ What calibration still needs from you, per its own step 1: score the outputs of 
 
 Then we compare, talk through any yes/no split or 2+ point gap, and the agreed examples get written under the anchors — at which point the calibration routine itself can move from Proposed to Decided.
 
+## Wording fix and rerun (20 November 2026)
+
+The repeated D5 finding was fixed the same day. `../day3-build/CLAUDE.md` (Goal section) now carries a plain-language rule: internal vocabulary never faces the applicant — "checked — nothing to flag (rule CR-5)" instead of "rule CR-5 not triggered", "I stopped because..." instead of "stop condition", "filled from your records" instead of "provenance".
+
+The nine affected answers (cases 1–9) were rerun under the updated instructions. The checks, flags and fixes are identical — only the fine-list wording changed, for example:
+
+```
+Checked and fine (5 items)
+birth certificate (rule CR-1), parental consent — 2 of 2 signatures
+(rule CR-2), child's photo (rule CR-3), child's identity number
+(rule CR-4), custody declaration wording (rule CR-5) — all checked,
+nothing to flag.
+```
+
+Re-scored on D5 only (D1–D4 unchanged — nothing about grounding, honesty, hard lines or fixes moved): cases 1–9 now score **5**. New batch numbers: **D5 average 5.0, floor 5** (was 4.25, floor 4). Still 12 of 12 pass; the margin a harsher grader could erase is gone.
+
+This also settles calibration disagreement 1 the second way — the phrase wasn't fine, so the wording changed. Disagreements 2 and 3 (D4 on no-fix answers; team notes in applicant answers) still need a rubric line, and your independent scores for cases 2, 5 and 7 are still the missing calibration input.
+
 ## Caveats carried over from the first run
 
 1. These cases were written from the same runs that shaped the agent's rules: a 12/12 confirms the agent still does what it did, not that it survives an input nobody has thought of. The fix stands: next revision, one case written by someone who has not read the run log.
