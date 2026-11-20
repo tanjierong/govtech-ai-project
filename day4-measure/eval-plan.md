@@ -2,11 +2,11 @@
 
 **Scenario:** B · ICA passport applications and renewals
 
-Who runs the eval, when it runs, and how we know the whole thing is working. Roles come from `../day3-build/operating-model.md` — job roles, no names, all made-up course stand-ins. The mechanics live in `human-rubric.md` (the runbook) and the current numbers in `eval-results.md`. All data synthetic. **Everything below is Proposed — nothing is decided until the product owner decides it.**
+Who runs the eval, when it runs, and how we know the whole thing is working. Roles come from `../day3-build/operating-model.md` — job roles, no names, all made-up course stand-ins. The mechanics live in `human-rubric.md` (the runbook) and the current numbers in `eval-results.md`. All data synthetic. **All four sections were reviewed and decided by the product owner on 20 November 2026, as proposed.**
 
 ## Who owns what
 
-All Proposed:
+All Decided (20 Nov 2026):
 
 - **Who signs the pass bar:** the **product owner** sets and changes the bar's numbers (they decided the current ones on 20 Nov 2026). The **operations lead** signs the gate the bar feeds — nothing goes in front of testers or widens without their confirm (PRD permission row 16). Two signatures, two different questions: "is the bar right?" is product's; "did it clear the bar, so may it proceed?" is operations'.
 - **Who writes and refreshes the test cases:** the **product owner** owns `eval-cases.md`. The **operations lead** triggers refreshes — every new checklist version must add or update the cases that touch the changed rules. The **facilitator** contributes one case per revision written *without reading the run log*, so at least one input exists that no rule was written against.
@@ -15,7 +15,7 @@ All Proposed:
 
 ## When it runs
 
-All Proposed:
+All Decided (20 Nov 2026):
 
 - **Before go-live (before testers, and before any widening):** a full batch — all cases in `eval-cases.md` — plus the five-question eval in the rule file against its answer key, after a fresh calibration. Operations lead confirms on the results; no partial batches, no skipping calibration because "nothing changed".
 - **Before every change:** any PR touching `../day3-build/CLAUDE.md` (the agent's instructions) or `../day2-validate/context-skill.md` (the rules) triggers a full batch before the changed agent checks anything for a tester. The 20 Nov wording fix is the pattern: change, rerun affected cases at minimum, full batch before the next gate.
@@ -24,7 +24,7 @@ All Proposed:
 
 ## How I'll know it's working
 
-All Proposed:
+All Decided (20 Nov 2026):
 
 - **The goal:** applications complete first time. The eval exists so the vetter stays trustworthy enough to put in front of people — the project's success signal remains returns falling from 17% toward 10% (first experiment), with fix-through ≥ 60% as the pass bar that keeps the experiment alive.
 - **The baseline:** the 20 November 2026 run in `eval-results.md` — 12 of 12 cases pass, 36 of 36 deal-breaker checks "yes", D4 average 5.0, D5 average 5.0 after the wording fix. Returns baseline: 17% (made-up figure).
@@ -35,7 +35,7 @@ All Proposed:
 
 ## First 30 days
 
-All Proposed — 20 November to 20 December 2026:
+All Decided (20 Nov 2026) — 20 November to 20 December 2026:
 
 - **Week 1 — close the calibration loop.** Product owner scores cases 2, 5 and 7 plus the planted bad answer (the sheet is in `eval-results.md`, the planted answer in `human-rubric.md`). Compare with the existing scores, write the agreed examples under the anchors, and move the calibration routine from Proposed to Decided. Owner: product owner + engineering lead.
 - **Week 2 — break the circularity.** Facilitator writes the first outsider case without reading the run log; product owner adds it to `eval-cases.md`; engineering lead runs the first scheduled weekly batch including it. Set the grader-agreement threshold properly (the runbook's working rule stands in until then). Owner: facilitator + product owner.
